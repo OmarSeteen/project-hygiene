@@ -59,7 +59,8 @@ CONFIG_EXTENSIONS = {".yml", ".yaml", ".toml", ".ini", ".cfg", ".conf"}
 SECRET_CONTENT_PATTERNS = [
     ("AWS access key id", re.compile(r"(?:AKIA|ASIA)[A-Z2-7]{16}")),
     ("private key block", re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----")),
-    ("PGP private key block", re.compile(r"-----BEGIN PGP PRIVATE KEY BLOCK-----")),
+    # Split literal so this scanner doesn't flag its own source as a secret.
+    ("PGP private key block", re.compile(r"-----BEGIN PGP PRIVATE KEY " + r"BLOCK-----")),
     ("Slack token", re.compile(r"xox[baprs]-[0-9A-Za-z-]{10,}")),
     ("Google API key", re.compile(r"AIza[0-9A-Za-z_\-]{35}")),
     ("hardcoded credential assignment", re.compile(
@@ -402,9 +403,12 @@ def _selftest():
         assert "ok.py" not in flagged, "placeholder must not flag"
         assert "config.example.yaml" not in flagged, "example file must be skipped"
 
-        # private-key header variants embedded in source must trip the tripwire
-        (root / "pgp.py").write_text("KEY = '''-----BEGIN PGP PRIVATE KEY BLOCK-----'''\n")
-        (root / "enc.py").write_text("KEY = '''-----BEGIN ENCRYPTED PRIVATE KEY-----'''\n")
+        # private-key header variants embedded in source must trip the tripwire.
+        # Headers built by concat so this test file isn't itself a scanner hit.
+        pgp = "-----BEGIN PGP PRIVATE KEY " + "BLOCK-----"
+        enc = "-----BEGIN ENCRYPTED PRIVATE " + "KEY-----"
+        (root / "pgp.py").write_text("KEY = '''" + pgp + "'''\n")
+        (root / "enc.py").write_text("KEY = '''" + enc + "'''\n")
         paths = list(walk_project(root))
         flagged = {Path(i["detail"].split("'")[1]).name for i in find_hardcoded_secrets(root, paths)}
         assert "pgp.py" in flagged, flagged
