@@ -59,3 +59,8 @@ specific recurring failure: secrets leaking, imports breaking, contributors
 guessing wrong, code that's correct but unreadable six months later. When a
 project doesn't fit cleanly (a tiny script, an early prototype), say so rather
 than mechanically applying every rule.
+
+## Support
+
+If this skill saved you some cleanup, you can support the work on
+[Ko-fi](https://ko-fi.com/omarseteen). ☕
