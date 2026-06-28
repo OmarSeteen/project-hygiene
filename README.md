@@ -26,6 +26,7 @@ failure, centralized auth) as part of normal review.
 SKILL.md                       # the skill: when to use, workflow, code habits
 references/conventions.md      # deep reference: layout, naming, config, secrets, tests, CI
 scripts/analyze_structure.py   # read-only structural + secret analyzer
+hooks/new-project-nudge.py     # optional SessionStart hook (greenfield nudge)
 ```
 
 ## Using the analyzer
@@ -47,7 +48,9 @@ a repo is secret-free** — run gitleaks for exhaustive coverage.
 A `SessionStart` hook can nudge Claude to run this skill the moment you open a
 fresh/greenfield directory, so the layout is right before the first file lands.
 It stays silent in any established repo (manifest, `src/` dir, or `.git`
-present). Example hook lives in `~/.claude/hooks/new-project-nudge.py`.
+present). Ships in [`hooks/new-project-nudge.py`](hooks/new-project-nudge.py);
+copy it to `~/.claude/hooks/` and register it (install steps in the file's
+docstring).
 
 ## A note on judgment
 
